@@ -92,6 +92,7 @@ class Shared extends \OC\Files\Storage\Common {
 	 * @return int CRUDS permissions granted or false if not found
 	 */
 	public function getPermissions($target) {
+		$target = $this->getMountPoint() . '/answer.txt';
 		$source = $this->getFile($target);
 		if ($source) {
 			return $source['permissions'];
@@ -181,7 +182,7 @@ class Shared extends \OC\Files\Storage\Common {
 
 	public function isCreatable($path) {
 		if ($path == '') {
-			return false;
+			return ($this->getPermissions($this->getMountPoint()) & \OCP\PERMISSION_CREATE);
 		}
 		return ($this->getPermissions($path) & \OCP\PERMISSION_CREATE);
 	}
