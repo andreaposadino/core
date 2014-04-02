@@ -69,6 +69,7 @@ class Shared extends \OC\Files\Storage\Common {
 	 * @return string source file path or false if not found
 	 */
 	public function getSourcePath($target) {
+		$target = $this->getMountPoint() . '/' . $target;
 		$source = $this->getFile($target);
 		if ($source) {
 			if (!isset($source['fullPath'])) {
@@ -406,7 +407,7 @@ class Shared extends \OC\Files\Storage\Common {
 	}
 
 	public function getMountPoint() {
-		return $this->sharedFolder;
+		return ltrim($this->sharedFolder, '/');
 	}
 
 	public function hasUpdated($path, $time) {

@@ -128,7 +128,7 @@ class Shared_Cache extends Cache {
 	public function getFolderContents($folder) {
 
 		if ($folder === false) {
-			$folder = ltrim($this->storage->getMountPoint(), '/');
+			$folder = $this->storage->getMountPoint();
 		}
 
 		$cache = $this->getSourceCache($folder);
