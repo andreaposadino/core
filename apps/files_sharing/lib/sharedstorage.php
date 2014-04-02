@@ -119,8 +119,8 @@ class Shared extends \OC\Files\Storage\Common {
 	public function opendir($path) {
 		if ($path == '' || $path == '/') {
 			$files = \OCP\Share::getItemsSharedWith('file', \OC_Share_Backend_Folder::FORMAT_OPENDIR);
-			\OC\Files\Stream\Dir::register('shared', $files);
-			return opendir('fakedir://shared');
+			\OC\Files\Stream\Dir::register($this->sharedFolder, $files);
+			return opendir('fakedir://' . $this->sharedFolder);
 		} else if ($source = $this->getSourcePath($path)) {
 			list($storage, $internalPath) = \OC\Files\Filesystem::resolvePath($source);
 			return $storage->opendir($internalPath);
@@ -393,14 +393,20 @@ class Shared extends \OC\Files\Storage\Common {
 	}
 
 	public static function setup($options) {
+		$shares = \OCP\Share::getItemsSharedWith('file');
 		if (!\OCP\User::isLoggedIn() || \OCP\User::getUser() != $options['user']
-			|| \OCP\Share::getItemsSharedWith('file')
+			|| $shares
 		) {
-			$user_dir = $options['user_dir'];
-			\OC\Files\Filesystem::mount('\OC\Files\Storage\Shared',
-				array('sharedFolder' => '/Shared'),
-				$user_dir . '/Shared/');
+			foreach ($shares as $share) {
+				\OC\Files\Filesystem::mount('\OC\Files\Storage\Shared',
+						array('sharedFolder' => $share['file_target']),
+						$options['user_dir'] . '/' . $share['file_target']);
+			}
 		}
+	}
+
+	public function getMountPoint() {
+		return $this->sharedFolder;
 	}
 
 	public function hasUpdated($path, $time) {
